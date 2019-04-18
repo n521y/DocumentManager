@@ -1,0 +1,42 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.app.main.ifileexplorer.MainActivity" >
+
+    <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="100"
+        android:title="刷新"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_newFolder"
+        android:orderInCategory="100"
+        android:title="新建文件夹"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_newFile"
+        android:orderInCategory="100"
+        android:title="新建文件"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_searchFile"
+        android:orderInCategory="100"
+        android:title="搜索"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_closeTab"
+        android:orderInCategory="100"
+        android:title="关闭"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_homePage"
+        android:orderInCategory="100"
+        android:title="主页"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_exit"
+        android:orderInCategory="100"
+        android:title="退出"
+        app:showAsAction="never" />
+
+</menu>

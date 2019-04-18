@@ -1,0 +1,41 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.app.main.ifileexplorer.MainActivity" >
+
+    <item
+        android:id="@+id/action_chooseAll"
+        android:orderInCategory="100"
+        android:title="全选"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_chooseReverse"
+        android:orderInCategory="100"
+        android:title="反选"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_cancel"
+        android:orderInCategory="100"
+        android:title="取消"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_openWay"
+        android:orderInCategory="100"
+        android:title="打开方式"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_reName"
+        android:orderInCategory="100"
+        android:title="重命名"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_attribute"
+        android:orderInCategory="100"
+        android:title="属性"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_shareOrSend"
+        android:orderInCategory="100"
+        android:title="分享/发送"
+        app:showAsAction="never" />
+</menu>
