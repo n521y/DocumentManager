@@ -25,7 +25,9 @@
 
         <activity android:name=".SearchActivity"
                   android:theme="@style/ThemeNoActionBar"/>
-        <activity android:name=".FileListActivity"/>
+        <activity android:name=".FileListActivity"
+                  android:theme="@style/ThemeNoActionBar"
+            />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -36,6 +38,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
+
+        <activity android:name=".CommonActivity"
+                  android:theme="@style/ThemeNoActionBar">
+
+        </activity>
+
+        <activity android:name=".RecentActivity"
+            android:theme="@style/ThemeNoActionBar">
+
+        </activity>
 
     </application>
 

@@ -8,11 +8,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.app.documentmanager.custom_view.DrawTextImageView;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private ImageView imageView1;
+    private ImageView imageView2;
+    private ImageView imageView3;
+    private DrawTextImageView imageView4;
 
     private LinearLayout imageLayout;
     private LinearLayout audioLayout;
@@ -46,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivity(intent);
 
                 }else if (menuItemId == R.id.action_settings){
+                    Intent intent = new Intent(MainActivity.this,CommonActivity.class);
+                    startActivity(intent);
                     Toast.makeText(MainActivity.this , "setting" , Toast.LENGTH_SHORT).show();
                 }
                 return false;
@@ -57,6 +67,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private  void  init(){
+
+        imageView4 = (DrawTextImageView)findViewById(R.id.more_picture);
+        imageView4.setDrawLocalXY(80,150);
+        imageView4.setDrawText("+23");
+        imageView4.setOnClickListener(this);
         imageLayout = (LinearLayout)findViewById(R.id.image);
         audioLayout = (LinearLayout)findViewById(R.id.audio);
         videoLayout = (LinearLayout)findViewById(R.id.video);
@@ -78,6 +93,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.more_picture:
+                Toast.makeText(v.getContext(),"more_picture",Toast.LENGTH_LONG).show();
+                Intent recentIntent = new Intent(MainActivity.this,RecentActivity.class);
+                startActivity(recentIntent);
+                break;
+
             case R.id.image:
                 Toast.makeText(v.getContext(),"image",Toast.LENGTH_LONG).show();
                 break;
@@ -97,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(v.getContext(),"apk",Toast.LENGTH_LONG).show();
                 break;
             case R.id.phonestorage:
-                Intent intent = new Intent(MainActivity.this,FileListActivity.class);
-                startActivity(intent);
+                Intent phonestorageIntent = new Intent(MainActivity.this,FileListActivity.class);
+                startActivity(phonestorageIntent);
                 Toast.makeText(v.getContext(),"phonestorage",Toast.LENGTH_LONG).show();
                 break;
             default:

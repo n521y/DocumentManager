@@ -22,24 +22,29 @@
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="100dp">
-        <ImageButton
+        <ImageView
             android:layout_weight="1"
             android:layout_width="0dp"
+            android:src="@drawable/ic_apple"
             android:layout_height="match_parent" />
 
-        <ImageButton
+        <ImageView
             android:layout_weight="1"
             android:layout_width="0dp"
+            android:src="@drawable/ic_apple"
             android:layout_height="match_parent" />
 
-        <ImageButton
+        <ImageView
             android:layout_weight="1"
             android:layout_width="0dp"
+            android:src="@drawable/ic_apple"
             android:layout_height="match_parent" />
 
-        <ImageButton
+        <com.example.app.documentmanager.custom_view.DrawTextImageView
+            android:id="@+id/more_picture"
             android:layout_weight="1"
             android:layout_width="0dp"
+            android:src="@drawable/ic_apple"
             android:layout_height="match_parent" />
 
     </LinearLayout>

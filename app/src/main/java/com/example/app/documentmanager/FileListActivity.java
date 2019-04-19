@@ -16,8 +16,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -38,10 +40,12 @@ import com.example.app.documentmanager.bean.FileEntity;
  *
  *
  */
-public class FileListActivity extends Activity implements OnClickListener{
+public class FileListActivity extends Activity {
 
+    private String niupath;
+    private Toolbar mToolbar;
+    private TextView mPathTextView;
     private ListView mListView;
-    private Button btnComfirm;
     private MyFileAdapter mAdapter;
     private static Context mContext;
     private File currentFile;
@@ -90,22 +94,28 @@ public class FileListActivity extends Activity implements OnClickListener{
         currentFile = new File(sdRootPath);
         System.out.println(sdRootPath);
         initView();
+        niupath=currentFile.getAbsolutePath().substring(19);
+        mPathTextView.setText("我的文件"+niupath);
         getData(sdRootPath);
 
 
     }
 
+    //返回的回掉
     @Override
     public void onBackPressed() {
 //		super.onBackPressed();
         System.out.println("onBackPressed...");
         if(sdRootPath.equals(currentFile.getAbsolutePath())){
             System.out.println("已经到了根目录...");
+            finish();
             return ;
         }
 
         String parentPath = currentFile.getParent();
         currentFile = new File(parentPath);
+        niupath=currentFile.getAbsolutePath().substring(19);
+        mPathTextView.setText("我的文件"+niupath);
         getData(parentPath);
     }
 
@@ -125,8 +135,52 @@ public class FileListActivity extends Activity implements OnClickListener{
     }
 
     private void initView() {
+        mToolbar = (Toolbar)findViewById(R.id.activity_filelidt_toolbar);
+        mPathTextView = (TextView) findViewById(R.id.activity_filelidt__path);
+
+        mToolbar.setNavigationIcon(R.drawable.ic_back);
+        //初始化菜单
+        mToolbar.inflateMenu(R.menu.menu_common_activity);
+        //设置菜单点击事件
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                final int menuItemId = item.getItemId();
+                if(menuItemId == R.id.action_serch){
+                    Toast.makeText(FileListActivity.this , "serch" , Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(FileListActivity.this,SearchActivity.class);
+                    startActivity(intent);
+
+                }else if (menuItemId == R.id.action_settings){
+                    Intent intent = new Intent(FileListActivity.this,CommonActivity.class);
+                    startActivity(intent);
+                    Toast.makeText(FileListActivity.this , "setting" , Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
+
+        //返回图片的点击事件
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(sdRootPath.equals(currentFile.getAbsolutePath())){
+                    System.out.println("已经到了根目录...");
+                    finish();
+                    return ;
+                }
+
+                String parentPath = currentFile.getParent();
+                currentFile = new File(parentPath);
+                niupath=currentFile.getAbsolutePath().substring(19);
+                mPathTextView.setText("我的文件"+niupath);
+                getData(parentPath);
+
+            }
+        });
+
+
         mListView = (ListView) findViewById(R.id.listView1);
-        btnComfirm = (Button) findViewById(R.id.button1);
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -136,6 +190,8 @@ public class FileListActivity extends Activity implements OnClickListener{
                 final FileEntity entity = mList.get(position);
                 if(entity.getFileType() == FileEntity.Type.FLODER){
                     currentFile = new File(entity.getFilePath());
+                    niupath=currentFile.getAbsolutePath().substring(19);
+                    mPathTextView.setText("我的文件"+niupath);
                     getData(entity.getFilePath());
                 }else if(entity.getFileType() == FileEntity.Type.FILE){
                     final File file = new File(entity.getFilePath());
@@ -166,19 +222,6 @@ public class FileListActivity extends Activity implements OnClickListener{
 
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button1:
-                setResult(100);
-                finish();
-                break;
-
-            default:
-                break;
-        }
-
-    }
 
     /**
      * 查找path地址下所有文件

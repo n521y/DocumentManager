@@ -4,31 +4,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/activity_filelidt_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp" >
+        android:layout_height="wrap_content">
 
+    </android.support.v7.widget.Toolbar>
 
-
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="14dp"
-            android:onClick="onClick"
-            android:text="确定" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#666"
-            android:layout_alignParentBottom="true"
-            />
-
-    </RelativeLayout>
-
+    <TextView
+        android:id="@+id/activity_filelidt__path"
+        android:text="我的文件 > 图片 > niu"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
     <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
