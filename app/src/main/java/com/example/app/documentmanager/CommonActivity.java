@@ -11,7 +11,6 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +18,7 @@ import com.example.app.documentmanager.adapter.FileListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//该Activity是作为所有分类文件的显示
 public class CommonActivity extends AppCompatActivity {
 
     private FileListAdapter adapter;

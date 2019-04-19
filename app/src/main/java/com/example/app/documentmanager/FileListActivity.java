@@ -1,11 +1,7 @@
 package com.example.app.documentmanager;
 import java.io.File;
-import java.security.Provider;
 import java.util.ArrayList;
-
-import android.Manifest;
 import android.app.Activity;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,22 +12,17 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.app.documentmanager.adapter.PhoneFileAdapter;
 import com.example.app.documentmanager.bean.FileEntity;
 
 
@@ -42,14 +33,16 @@ import com.example.app.documentmanager.bean.FileEntity;
  */
 public class FileListActivity extends Activity {
 
+    private RecyclerView.LayoutManager mLayoutManager;
     private String niupath;
     private Toolbar mToolbar;
     private TextView mPathTextView;
-    private ListView mListView;
-    private MyFileAdapter mAdapter;
+    private RecyclerView mListView;
+    private PhoneFileAdapter mAdapter;
     private static Context mContext;
     private File currentFile;
     String sdRootPath;
+    private boolean mFlag;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -63,30 +56,27 @@ public class FileListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filelist);
+        mFlag=false;
+        mContext = this;
         mHandler = new Handler(){
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case 1:
-                        if(mAdapter ==null){
-                            mAdapter = new MyFileAdapter(mContext, mList);
-                            mListView.setAdapter(mAdapter);
-                        }else{
-                            mAdapter.notifyDataSetChanged();
-                        }
-
+                        init();
                         break;
                     case 2:
-
+                        init();
                         break;
-
+                    case 3:
+                        init();
+                        break;
                     default:
                         break;
                 }
             }
         };
-        mContext = this;
         verifyStoragePermissions(this);
         mList = new ArrayList<>();
         sdRootPath =Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -94,11 +84,10 @@ public class FileListActivity extends Activity {
         currentFile = new File(sdRootPath);
         System.out.println(sdRootPath);
         initView();
+        init();
         niupath=currentFile.getAbsolutePath().substring(19);
         mPathTextView.setText("我的文件"+niupath);
         getData(sdRootPath);
-
-
     }
 
     //返回的回掉
@@ -155,6 +144,24 @@ public class FileListActivity extends Activity {
                     Intent intent = new Intent(FileListActivity.this,CommonActivity.class);
                     startActivity(intent);
                     Toast.makeText(FileListActivity.this , "setting" , Toast.LENGTH_SHORT).show();
+                }else if(menuItemId == R.id.action_grid){
+                    if(mFlag == false){
+                        mFlag=true;
+                        item.setIcon(R.drawable.ic_grid);
+                        //网格排列文件
+                        Message msg = new Message();
+                        msg.what=2;
+                        mHandler.sendMessage(msg);
+
+                    }else {
+                        mFlag = false;
+                        item.setIcon(R.drawable.ic_vertical);
+                        //水平排列文件
+                        Message msg = new Message();
+                        msg.what=3;
+                        mHandler.sendMessage(msg);
+                    }
+
                 }
                 return false;
             }
@@ -180,14 +187,32 @@ public class FileListActivity extends Activity {
         });
 
 
-        mListView = (ListView) findViewById(R.id.listView1);
+        mListView = (RecyclerView) findViewById(R.id.listView1);
+    }
 
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+    private  void init(){
+        if (mFlag == false){
+            mLayoutManager = new LinearLayoutManager(this);
+            mListView.setLayoutManager(mLayoutManager);
+        }else {
+            mLayoutManager = new
+                    StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
+            mListView.setLayoutManager(mLayoutManager);
+        }
+        if(mAdapter == null) {
+            mAdapter = new PhoneFileAdapter(FileListActivity.this, mList, mFlag);
+            mListView.setAdapter(mAdapter);
 
+        }else {
+            mAdapter = new PhoneFileAdapter(FileListActivity.this, mList, mFlag);
+            mListView.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
+        }
+        mAdapter.setOnItemClickListener(new PhoneFileAdapter.OnRecyclerViewItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                final FileEntity entity = mList.get(position);
+            public void onItemClick(View view, int data) {
+                Toast.makeText(FileListActivity.this,"item",Toast.LENGTH_LONG).show();
+                final FileEntity entity = mList.get(data);
                 if(entity.getFileType() == FileEntity.Type.FLODER){
                     currentFile = new File(entity.getFilePath());
                     niupath=currentFile.getAbsolutePath().substring(19);
@@ -205,7 +230,12 @@ public class FileListActivity extends Activity {
                         }
                     });
                 }
-
+            }
+        });
+        mAdapter.setOnItemLongClickListener(new PhoneFileAdapter.OnRecyclerItemLongListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                Toast.makeText(FileListActivity.this,"itemlong",Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -221,7 +251,6 @@ public class FileListActivity extends Activity {
         }.start();
 
     }
-
 
     /**
      * 查找path地址下所有文件
@@ -253,104 +282,6 @@ public class FileListActivity extends Activity {
             Log.d("niuniu",mList.toString());
         }
         mHandler.sendEmptyMessage(1);
-
-    }
-
-
-    class MyFileAdapter extends BaseAdapter {
-        private Context mContext;
-        private ArrayList<FileEntity> mAList;
-        private LayoutInflater mInflater;
-
-
-
-        public MyFileAdapter(Context mContext, ArrayList<FileEntity> mList) {
-            super();
-            this.mContext = mContext;
-            this.mAList = mList;
-            mInflater = LayoutInflater.from(mContext);
-        }
-
-        @Override
-        public int getCount() {
-            // TODO Auto-generated method stub
-            return mAList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            // TODO Auto-generated method stub
-            return mAList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            if(mAList.get(position).getFileType() == FileEntity.Type.FLODER){
-                return 0;
-            }else{
-                return 1;
-            }
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return 2;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-//			System.out.println("position-->"+position+"    ---convertView--"+convertView);
-            ViewHolder holder = null;
-            int type = getItemViewType(position);
-            FileEntity entity = mAList.get(position);
-
-            if(convertView == null){
-                holder = new ViewHolder();
-                switch (type) {
-                    case 0://folder
-                        convertView = mInflater.inflate(R.layout.item_listview, parent, false);
-                        holder.iv = (ImageView) convertView.findViewById(R.id.item_imageview);
-                        holder.tv = (TextView) convertView.findViewById(R.id.item_textview);
-                        break;
-                    case 1://file
-                        convertView = mInflater.inflate(R.layout.item_listview, parent, false);
-                        holder.iv = (ImageView) convertView.findViewById(R.id.item_imageview);
-                        holder.tv = (TextView) convertView.findViewById(R.id.item_textview);
-
-                        break;
-
-                    default:
-                        break;
-
-                }
-                convertView.setTag(holder);
-            }else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-
-            switch (type) {
-                case 0:
-                    holder.iv.setImageResource(R.drawable.folder);
-                    holder.tv.setText(entity.getFileName());
-                    break;
-                case 1:
-                    holder.iv.setImageResource(R.drawable.file);
-                    holder.tv.setText(entity.getFileName());
-
-                    break;
-
-                default:
-                    break;
-            }
-
-
-            return convertView;
-        }
 
     }
 
@@ -532,14 +463,4 @@ public class FileListActivity extends Activity {
         Uri uri = FileProvider.getUriForFile(mContext,mContext.getApplicationContext().getPackageName() + ".provider", file);        intent.setDataAndType(uri, "application/pdf");
         return intent;
     }
-
-
-
-    class ViewHolder {
-        ImageView iv;
-        TextView tv;
-    }
-
-
-
 }
