@@ -286,7 +286,7 @@ public class FileListActivity extends Activity {
     }
 
     public static Intent openFile(String filePath){
-
+        Log.d("niuniufilePath",filePath);
         File file = new File(filePath);
         if(!file.exists()) return null;
         /* 取得扩展名 */

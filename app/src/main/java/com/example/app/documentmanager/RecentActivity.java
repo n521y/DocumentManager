@@ -2,23 +2,11 @@ package com.example.app.documentmanager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.app.documentmanager.adapter.FileListAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class RecentActivity extends AppCompatActivity {
 
     private boolean arrangementFlag = false;

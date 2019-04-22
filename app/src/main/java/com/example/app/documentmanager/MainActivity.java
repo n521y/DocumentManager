@@ -2,16 +2,15 @@ package com.example.app.documentmanager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import com.example.app.documentmanager.custom_view.DrawTextImageView;
 
 
@@ -31,6 +30,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LinearLayout phonestorage;
     private Toolbar toolbar;
 
+    class MyAsyncTask extends AsyncTask<Void,Void,Boolean>{
+
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+
+
+            return false;
+        }
+    }
 
 
 
@@ -54,8 +63,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivity(intent);
 
                 }else if (menuItemId == R.id.action_settings){
-                    Intent intent = new Intent(MainActivity.this,CommonActivity.class);
-                    startActivity(intent);
+                    /*Intent intent = new Intent(MainActivity.this,CommonActivity.class);
+                    startActivity(intent);*/
                     Toast.makeText(MainActivity.this , "setting" , Toast.LENGTH_SHORT).show();
                 }
                 return false;
@@ -92,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        Intent intent =new Intent(MainActivity.this,CommonActivity.class);
         switch (v.getId()){
             case R.id.more_picture:
                 Toast.makeText(v.getContext(),"more_picture",Toast.LENGTH_LONG).show();
@@ -100,22 +110,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.image:
-                Toast.makeText(v.getContext(),"image",Toast.LENGTH_LONG).show();
+                //Toast.makeText(v.getContext(),"image",Toast.LENGTH_LONG).show();
+                intent.setType("image");
+                startActivity(intent);
                 break;
             case R.id.audio:
                 Toast.makeText(v.getContext(),"audio",Toast.LENGTH_LONG).show();
+                intent.setType("audio");
+                startActivity(intent);
                 break;
             case R.id.video:
                 Toast.makeText(v.getContext(),"video",Toast.LENGTH_LONG).show();
+                intent.setType("video");
+                startActivity(intent);
                 break;
             case R.id.document:
                 Toast.makeText(v.getContext(),"document",Toast.LENGTH_LONG).show();
+                intent.setType("document");
+                startActivity(intent);
                 break;
             case R.id.download:
                 Toast.makeText(v.getContext(),"download",Toast.LENGTH_LONG).show();
+                intent.setType("download");
+                startActivity(intent);
                 break;
             case R.id.apk:
                 Toast.makeText(v.getContext(),"apk",Toast.LENGTH_LONG).show();
+                intent.setType("apk");
+                startActivity(intent);
                 break;
             case R.id.phonestorage:
                 Intent phonestorageIntent = new Intent(MainActivity.this,FileListActivity.class);

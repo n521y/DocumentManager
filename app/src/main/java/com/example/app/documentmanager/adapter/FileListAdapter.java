@@ -1,6 +1,5 @@
 package com.example.app.documentmanager.adapter;
 
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,9 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.example.app.documentmanager.R;
-
+import com.example.app.documentmanager.bean.CommonBean;
 import java.util.ArrayList;
 
 public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> {
@@ -21,9 +19,9 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     private OnRecyclerItemLongListener mOnItemLong = null;
     private Context mcontext;
     private LayoutInflater inflater;
-    private ArrayList<String> arrayList;
+    private ArrayList<CommonBean> arrayList;
 
-    public FileListAdapter (Context context, ArrayList<String> arrayList,boolean flag){
+    public FileListAdapter (Context context, ArrayList<CommonBean> arrayList, boolean flag){
         this.mcontext=context;
         this.arrayList=arrayList;
         inflater=LayoutInflater.from(context);
@@ -80,8 +78,8 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull FileListAdapter.ViewHolder viewHolder, int i) {
-        viewHolder.imageView.setImageResource(R.drawable.file);
-        viewHolder.textView.setText(arrayList.get(i));
+        viewHolder.imageView.setImageBitmap(arrayList.get(i).getIcon(mcontext));
+        viewHolder.textView.setText(arrayList.get(i).getTitle());
 
     }
 
