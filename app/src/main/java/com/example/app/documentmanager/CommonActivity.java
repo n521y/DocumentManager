@@ -2,8 +2,9 @@ package com.example.app.documentmanager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,7 +21,9 @@ import android.widget.Toast;
 
 import com.example.app.documentmanager.adapter.FileListAdapter;
 import com.example.app.documentmanager.bean.CommonBean;
+import com.example.app.documentmanager.sql.MyDatabaseHelper;
 import com.example.app.documentmanager.utils.FileCategoryHelper;
+import com.example.app.documentmanager.utils.FileOpen;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,22 +42,9 @@ public class CommonActivity extends AppCompatActivity {
     private TextView mTextView;
     private RecyclerView mListView;
     public List<CommonBean> data = new ArrayList() ;
-    private AsyncTask asyncTask = new AsyncTask() {
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            mFileCategoryHelper.getSystemFileCategory("/storage/emulated/0",mContext);
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-            if(true){
-                adapter.notifyDataSetChanged();
-            }
-        }
-    };
-
+    private MyDatabaseHelper myDatabaseHelper;
+    private SQLiteDatabase mDb;
+    private FileOpen mFileOpen;
 
     private Handler mHandler = new Handler(){
 
@@ -88,6 +78,8 @@ public class CommonActivity extends AppCompatActivity {
         setContentView(R.layout.common_layout);
         Intent intent=getIntent();
         mType=intent.getType();
+        myDatabaseHelper = new MyDatabaseHelper(this, "Wenjian.db", null, 1);
+        mDb=myDatabaseHelper.getWritableDatabase();
         Toast.makeText(CommonActivity.this , "intent"+intent.getType() , Toast.LENGTH_SHORT).show();
         init();
         initData(mType);
@@ -131,7 +123,6 @@ public class CommonActivity extends AppCompatActivity {
                 return false;
             }
         });
-
         //返回图片的点击事件
         mCommonToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,16 +131,13 @@ public class CommonActivity extends AppCompatActivity {
             }
         });
 
-
-
-
     }
 
     private  void  init(){
         mCommonToolbar = (Toolbar) findViewById(R.id.commontoolbar);
         mTextView = (TextView)findViewById(R.id.common_path);
         mListView = (RecyclerView) findViewById(R.id.datalist);
-        asyncTask.execute();
+        mFileOpen = new FileOpen(mContext);
     }
 
 
@@ -177,7 +165,7 @@ public class CommonActivity extends AppCompatActivity {
 
         }else  if (type.equals("document")){
             mTextView.setText("我的文件 >  文件 ");
-            dataPathList=  mFileCategoryHelper.getSystemDocument();
+            dataPathList=  queryDocument();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
@@ -185,14 +173,14 @@ public class CommonActivity extends AppCompatActivity {
 
         }else  if (type.equals("download")){
             mTextView.setText("我的文件 >  下载 ");
-            dataPathList=  mFileCategoryHelper.getSystemCompression();
+            dataPathList=  queryDownLoad();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
 
         }else  if (type.equals("apk")){
             mTextView.setText("我的文件 >  apk  ");
-            dataPathList=  mFileCategoryHelper.getSystemApk();
+            dataPathList=  queryAPK();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
@@ -231,6 +219,8 @@ public class CommonActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 data.get(position).getContent();
                 Toast.makeText(CommonActivity.this,data.get(position).getContent(),Toast.LENGTH_LONG).show();
+                Intent intent =mFileOpen.openFile(data.get(position).getContent());
+                startActivity(intent);
             }
         });
         adapter.setOnItemLongClickListener(new FileListAdapter.OnRecyclerItemLongListener() {
@@ -242,4 +232,63 @@ public class CommonActivity extends AppCompatActivity {
         mListView.setAdapter(adapter);
 
     }
+
+    private  List<String>  queryAPK(){
+        List<String> dataPathList = new ArrayList<>();
+        Cursor cursor = mDb.query("Apk",null,null,null,null,null,null,null);
+        Log.d("MainActivity", "cursor name is " + cursor.toString());
+        Log.d("MainActivity", "cursor name is " + cursor.moveToFirst());
+        if (cursor.moveToFirst()) {
+            do {
+// 遍历Cursor对象，取出数据并打印
+                dataPathList.add(cursor.getString(cursor.getColumnIndex
+                        ("Apk_uri")));
+                String id = cursor.getString(cursor.getColumnIndex
+                        ("id"));
+                Log.d("MainActivity", "Apkid :" + id);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return dataPathList;
+
+    }
+
+    private  List<String>  queryDocument(){
+        List<String> dataPathList = new ArrayList<>();
+        Cursor cursor = mDb.query("Document",null,null,null,null,null,null,null);
+        Log.d("MainActivity", "Document name is " + cursor.toString());
+        Log.d("MainActivity", "Document name is " + cursor.moveToFirst());
+        if (cursor.moveToFirst()) {
+            do {
+// 遍历Cursor对象，取出数据并打印
+                dataPathList.add(cursor.getString(cursor.getColumnIndex
+                        ("Document_Uri")));
+                String id = cursor.getString(cursor.getColumnIndex
+                        ("id"));
+                Log.d("MainActivity", "Documentid :" + id);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return dataPathList;
+    }
+
+    private  List<String>  queryDownLoad(){
+        List<String> dataPathList = new ArrayList<>();
+        Cursor cursor = mDb.query("DownLoad",null,null,null,null,null,null,null);
+        Log.d("MainActivity", "DownLoad name is " + cursor.toString());
+        Log.d("MainActivity", "DownLoad name is " + cursor.moveToFirst());
+        if (cursor.moveToFirst()) {
+            do {
+// 遍历Cursor对象，取出数据并打印
+                dataPathList.add(cursor.getString(cursor.getColumnIndex
+                        ("DownLoad_Uri")));
+                String id = cursor.getString(cursor.getColumnIndex
+                        ("id"));
+                Log.d("MainActivity", "DownLoadid :" + id);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return dataPathList;
+    }
+
 }

@@ -57,7 +57,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             if (mOnItemLong != null) {
                 mOnItemLong.onItemLongClick(v, getPosition());
             }
-            return true;
+            return false;
         }
     }
 
