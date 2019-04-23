@@ -94,7 +94,7 @@ public class FileHelper {
 		return false;
 	}
 
-	public static List<String> deleteFile(List<String> filePathLists) {
+	public static List<String> deleteFileList(List<String> filePathLists) {
 		List<String> filePathList = new ArrayList<String>();
 		for (String filePath : filePathLists) {
 			File file = new File(filePath);
@@ -108,7 +108,7 @@ public class FileHelper {
 						for (File tempFile : filesarr) {
 							tempFilePathLists.add(tempFile.getAbsolutePath());
 						}
-						deleteFile(tempFilePathLists);
+						deleteFileList(tempFilePathLists);
 						file.delete();
 					}
 					filePathList.add(filePath);
@@ -118,6 +118,19 @@ public class FileHelper {
 			}
 		}
 		return filePathList;
+	}
+
+	public static boolean deleteFile(String filePath) {
+			File file = new File(filePath);
+			if (file.exists()) {
+					if (file.isFile()) {
+						file.delete();
+						return true;
+					} else {
+						return false;
+					}
+			}
+			return false;
 	}
 
 	public static boolean reNameFile(final String filePath, String newName) {

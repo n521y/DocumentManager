@@ -26,6 +26,7 @@ import com.example.app.documentmanager.adapter.FileListAdapter;
 import com.example.app.documentmanager.bean.CommonBean;
 import com.example.app.documentmanager.sql.MyDatabaseHelper;
 import com.example.app.documentmanager.utils.FileCategoryHelper;
+import com.example.app.documentmanager.utils.FileHelper;
 import com.example.app.documentmanager.utils.FileOpen;
 
 import java.io.File;
@@ -227,27 +228,59 @@ public class CommonActivity extends AppCompatActivity {
             }
         });
         adapter.setOnItemLongClickListener(new FileListAdapter.OnRecyclerItemLongListener() {
-            String[] fileOpItemStr = {"复制","剪切","删除","..."};
-
+            String[] fileOpItemStr = {"重命名","删除","移动","查看文件属性"};
+            List<String> stringList = new ArrayList<>();
             @Override
-            public void onItemLongClick(View view, int position) {
+            public void onItemLongClick(View view, final int position) {
+                final String filePath = data.get(position).getContent();
+                stringList.add(data.get(position).getContent());
                 DialogInterface.OnClickListener fileOpDialogOnClickListener = new DialogInterface
                         .OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Toast.makeText(CommonActivity.this, fileOpItemStr[which],
                                 Toast.LENGTH_LONG).show();
+                        Toast.makeText(CommonActivity.this, data.get(position).getContent(),
+                                Toast.LENGTH_LONG).show();
+
+                        switch (which){
+                            case 0:
+
+                                break;
+                            case 1:
+                                FileHelper.deleteFile(filePath);
+                                Toast.makeText(CommonActivity.this, "删除成功",
+                                        Toast.LENGTH_LONG).show();
+                                break;
+                            case 2:
+
+
+                                break;
+                            case 3:
+                                List<String> resultList = new ArrayList<String>();
+                                resultList=FileHelper.getFileAttribute(filePath);
+                                for(int i = 0;i<resultList.size();i++){
+                                    Toast.makeText(CommonActivity.this, resultList.get(i),
+                                            Toast.LENGTH_SHORT).show();
+
+                                }
+
+                                break;
+                            default:
+
+                                break;
+                        }
                     }
                 };
 
                 DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
+
                     }
                 };
                 new AlertDialog.Builder(CommonActivity.this)
                         .setTitle("文件操作")
-                        .setItems(fileOpItemStr, fileOpDialogOnClickListener)
-                        .setNegativeButton("取消",onClickListener).show();
+                        .setItems(fileOpItemStr, fileOpDialogOnClickListener).show();
             }
         });
         mListView.setAdapter(adapter);
