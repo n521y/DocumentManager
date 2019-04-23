@@ -83,11 +83,11 @@ public class FileHelper {
 				String type = MimeTypeUtils.getMimeType(filePath);
 				if (type != null) {
 					intent.setDataAndType(uri, type);
-					context.startActivity(Intent.createChooser(intent, "????"));
+					context.startActivity(Intent.createChooser(intent, "打开方式"));
 					return true;
 				}
 			} catch (Exception e) {
-				Toast.makeText(context, "????????",
+				Toast.makeText(context, "打开文件失败",
 						Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -173,7 +173,7 @@ public class FileHelper {
 					String path = newPath + "/" + file.getName();
 					File tempFile = new File(path);
 					if (file.isFile()) {
-						InputStream inStream = new FileInputStream(file); // ????????
+						InputStream inStream = new FileInputStream(file); // 读入原文件
 						FileOutputStream fs = new FileOutputStream(tempFile);
 						byte[] buffer = new byte[1024 * 4];
 						int length;
@@ -336,7 +336,7 @@ public class FileHelper {
 			intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, (ArrayList<? extends Parcelable>) uris);
 		}
 		intent.setType("*/*");
-		context.startActivity(Intent.createChooser(intent, "????/????"));
+		context.startActivity(Intent.createChooser(intent, "分享/发送"));
 	}
 	
 	public static void showFileAttribute(List<String> list,Context context) {
@@ -346,15 +346,15 @@ public class FileHelper {
 			String size = list.get(2);
 			String time = list.get(3);
 			new AlertDialog.Builder(context)
-					.setTitle("???????")
+					.setTitle("文件属性")
 					.setMessage(
-							"?????" + name + "\r\n" + "·????" + path + "\r\n"
-									+ "??С??" + size + "\r\n" + "???" + time)
-					.setPositiveButton("???", null).show();
+							"名称" + name + "\r\n" + "路径" + path + "\r\n"
+									+ "大小" + size + "\r\n" + "时间" + time)
+					.setPositiveButton("确定", null).show();
 		}
 		else
 		{
-			Toast.makeText(context, "?????????", Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, "属性获取失败", Toast.LENGTH_SHORT).show();
 		}
 	}
 

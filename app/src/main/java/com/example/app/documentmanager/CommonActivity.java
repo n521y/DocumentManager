@@ -230,7 +230,7 @@ public class CommonActivity extends AppCompatActivity {
             }
         });
         adapter.setOnItemLongClickListener(new FileListAdapter.OnRecyclerItemLongListener() {
-            String[] fileOpItemStr = {"重命名","删除","移动","查看文件属性"};
+            String[] fileOpItemStr = {"重命名","删除","查看文件属性"};
             List<String> stringList = new ArrayList<>();
             @Override
             public void onItemLongClick(View view, final int position) {
@@ -239,13 +239,9 @@ public class CommonActivity extends AppCompatActivity {
                 final DialogInterface.OnClickListener fileOpDialogOnClickListener = new DialogInterface
                         .OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-//                        Toast.makeText(CommonActivity.this, fileOpItemStr[which],
-//                                Toast.LENGTH_SHORT).show();
-//                        Toast.makeText(CommonActivity.this, data.get(position).getContent(),
-//                                Toast.LENGTH_SHORT).show();
                         switch (which){
                             case 0:
-                                rename();
+                                rename(filePath);
                                 break;
                             case 1:
                                 FileHelper.deleteFile(filePath);
@@ -253,18 +249,9 @@ public class CommonActivity extends AppCompatActivity {
                                         Toast.LENGTH_LONG).show();
                                 break;
                             case 2:
-
-
-                                break;
-                            case 3:
                                 List<String> resultList = new ArrayList<String>();
                                 resultList=FileHelper.getFileAttribute(filePath);
-                                for(int i = 0;i<resultList.size();i++){
-                                    Toast.makeText(CommonActivity.this, resultList.get(i),
-                                            Toast.LENGTH_SHORT).show();
-
-                                }
-
+                                FileHelper.showFileAttribute(resultList,mContext);
                                 break;
                             default:
 
@@ -287,28 +274,40 @@ public class CommonActivity extends AppCompatActivity {
         mListView.setAdapter(adapter);
 
     }
+    //重命名
+    private void rename(final String filePath) {
 
-    private void rename() {
         final AlertDialog alertDialog = new AlertDialog.Builder(CommonActivity.this).create();
         View renameDialog = View.inflate(CommonActivity.this, R.layout.dialog_commonactivity_rename,null);
+        File file = new File(filePath);
+        final String name = file.getName();
         alertDialog.setView(renameDialog);
         alertDialog.show();
         final EditText newEditText = alertDialog.findViewById(R.id.edittext_dialog_commonactivity_newname);
         Button confimButton = alertDialog.findViewById(R.id.button_commonactivity_rename_dialog_confirm);
         Button cancelButton = alertDialog.findViewById(R.id.button_commonactivity_rename_dialog_cancel);
+        //显示文件原名称
+        newEditText.setText(name);
+        //重命名弹出框确定按钮
         confimButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String newName = newEditText.getText().toString().trim();
+                boolean success=FileHelper.reNameFile(filePath,newName);
+                if (success){
+                    Toast.makeText(CommonActivity.this, "重命名成功", Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(CommonActivity.this, "重命名失败", Toast.LENGTH_LONG).show();
+
+                }
                 alertDialog.dismiss();
-                Toast.makeText(mContext, "newName is "+newName, Toast.LENGTH_SHORT).show();
             }
         });
+        //重命名弹出框取消按钮
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
-                Toast.makeText(mContext, "cancel rename!", Toast.LENGTH_SHORT).show();
             }
         });
     }
