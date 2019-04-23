@@ -18,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -234,17 +236,16 @@ public class CommonActivity extends AppCompatActivity {
             public void onItemLongClick(View view, final int position) {
                 final String filePath = data.get(position).getContent();
                 stringList.add(data.get(position).getContent());
-                DialogInterface.OnClickListener fileOpDialogOnClickListener = new DialogInterface
+                final DialogInterface.OnClickListener fileOpDialogOnClickListener = new DialogInterface
                         .OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(CommonActivity.this, fileOpItemStr[which],
-                                Toast.LENGTH_LONG).show();
-                        Toast.makeText(CommonActivity.this, data.get(position).getContent(),
-                                Toast.LENGTH_LONG).show();
-
+//                        Toast.makeText(CommonActivity.this, fileOpItemStr[which],
+//                                Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(CommonActivity.this, data.get(position).getContent(),
+//                                Toast.LENGTH_SHORT).show();
                         switch (which){
                             case 0:
-
+                                rename();
                                 break;
                             case 1:
                                 FileHelper.deleteFile(filePath);
@@ -285,6 +286,31 @@ public class CommonActivity extends AppCompatActivity {
         });
         mListView.setAdapter(adapter);
 
+    }
+
+    private void rename() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(CommonActivity.this).create();
+        View renameDialog = View.inflate(CommonActivity.this, R.layout.dialog_commonactivity_rename,null);
+        alertDialog.setView(renameDialog);
+        alertDialog.show();
+        final EditText newEditText = alertDialog.findViewById(R.id.edittext_dialog_commonactivity_newname);
+        Button confimButton = alertDialog.findViewById(R.id.button_commonactivity_rename_dialog_confirm);
+        Button cancelButton = alertDialog.findViewById(R.id.button_commonactivity_rename_dialog_cancel);
+        confimButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String newName = newEditText.getText().toString().trim();
+                alertDialog.dismiss();
+                Toast.makeText(mContext, "newName is "+newName, Toast.LENGTH_SHORT).show();
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+                Toast.makeText(mContext, "cancel rename!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private  List<String>  queryAPK(){
