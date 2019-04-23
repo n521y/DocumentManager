@@ -1,6 +1,7 @@
 package com.example.app.documentmanager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,10 +31,11 @@ import com.example.app.documentmanager.utils.FileOpen;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 //该Activity是作为所有分类文件的显示
 public class CommonActivity extends AppCompatActivity {
 
-    private FileCategoryHelper mFileCategoryHelper =new FileCategoryHelper();
+    private FileCategoryHelper mFileCategoryHelper = new FileCategoryHelper();
     private Context mContext;
     private String mType;
     private FileListAdapter adapter;
@@ -46,17 +50,17 @@ public class CommonActivity extends AppCompatActivity {
     private SQLiteDatabase mDb;
     private FileOpen mFileOpen;
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case 0:
-                    Toast.makeText(CommonActivity.this , "what0" , Toast.LENGTH_LONG).show();
+                    Toast.makeText(CommonActivity.this, "what0", Toast.LENGTH_LONG).show();
                     onStart();
                     break;
                 case 1:
-                    Toast.makeText(CommonActivity.this , "what1" , Toast.LENGTH_LONG).show();
+                    Toast.makeText(CommonActivity.this, "what1", Toast.LENGTH_LONG).show();
                     onStart();
 
                     break;
@@ -73,8 +77,8 @@ public class CommonActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext=this;
-        mSavedInstanceState=savedInstanceState;
+        mContext = this;
+        mSavedInstanceState = savedInstanceState;
         setContentView(R.layout.common_layout);
         Intent intent=getIntent();
         mType=intent.getType();
@@ -92,30 +96,30 @@ public class CommonActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 final int menuItemId = item.getItemId();
-                if(menuItemId == R.id.action_serch){
-                    Toast.makeText(CommonActivity.this , "serch" , Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(CommonActivity.this,SearchActivity.class);
+                if (menuItemId == R.id.action_serch) {
+                    Toast.makeText(CommonActivity.this, "serch", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(CommonActivity.this, SearchActivity.class);
                     startActivity(intent);
 
-                }else if (menuItemId == R.id.action_settings){
-                    Intent intent = new Intent(CommonActivity.this,CommonActivity.class);
+                } else if (menuItemId == R.id.action_settings) {
+                    Intent intent = new Intent(CommonActivity.this, CommonActivity.class);
                     startActivity(intent);
-                    Toast.makeText(CommonActivity.this , "setting" , Toast.LENGTH_SHORT).show();
-                }else if(menuItemId == R.id.action_grid){
-                    if(arrangementFlag == false){
-                        arrangementFlag=true;
+                    Toast.makeText(CommonActivity.this, "setting", Toast.LENGTH_SHORT).show();
+                } else if (menuItemId == R.id.action_grid) {
+                    if (arrangementFlag == false) {
+                        arrangementFlag = true;
                         item.setIcon(R.drawable.ic_grid);
                         //网格排列文件
                         Message msg = new Message();
-                        msg.what=1;
+                        msg.what = 1;
                         mHandler.sendMessage(msg);
 
-                    }else {
+                    } else {
                         arrangementFlag = false;
                         item.setIcon(R.drawable.ic_vertical);
                         //水平排列文件
                         Message msg = new Message();
-                        msg.what=1;
+                        msg.what = 1;
                         mHandler.sendMessage(msg);
                     }
                 }
@@ -130,40 +134,39 @@ public class CommonActivity extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
-    private  void  init(){
+    private void init() {
         mCommonToolbar = (Toolbar) findViewById(R.id.commontoolbar);
-        mTextView = (TextView)findViewById(R.id.common_path);
+        mTextView = (TextView) findViewById(R.id.common_path);
         mListView = (RecyclerView) findViewById(R.id.datalist);
         mFileOpen = new FileOpen(mContext);
     }
 
 
-    private List<CommonBean> initData(String type){
+    private List<CommonBean> initData(String type) {
         List<String> dataPathList = new ArrayList<>();
-        if ( type.equals("image")){
+        if (type.equals("image")) {
             mTextView.setText("我的文件 > 图片");
-            dataPathList=  mFileCategoryHelper.getSystemImage(mContext);
-            for(int i=0;i<dataPathList.size();i++){
-                Log.d("dataPathList",dataPathList.get(i));
+            dataPathList = mFileCategoryHelper.getSystemImage(mContext);
+            for (int i = 0; i < dataPathList.size(); i++) {
+                Log.d("dataPathList", dataPathList.get(i));
             }
-        }else if (type.equals("audio")){
+        } else if (type.equals("audio")) {
             mTextView.setText("我的文件 >  音频 ");
-            dataPathList=  mFileCategoryHelper.getSystemAudio(mContext);
-            for(int i=0;i<dataPathList.size();i++){
-                Log.d("dataPathList",dataPathList.get(i));
+            dataPathList = mFileCategoryHelper.getSystemAudio(mContext);
+            for (int i = 0; i < dataPathList.size(); i++) {
+                Log.d("dataPathList", dataPathList.get(i));
             }
 
-        }else  if (type.equals("video")){
+        } else if (type.equals("video")) {
             mTextView.setText("我的文件 >  视频 ");
-            dataPathList=  mFileCategoryHelper.getSystemVideo(mContext);
-            for(int i=0;i<dataPathList.size();i++){
-                Log.d("dataPathList",dataPathList.get(i));
+            dataPathList = mFileCategoryHelper.getSystemVideo(mContext);
+            for (int i = 0; i < dataPathList.size(); i++) {
+                Log.d("dataPathList", dataPathList.get(i));
             }
 
-        }else  if (type.equals("document")){
+        } else if (type.equals("document")) {
             mTextView.setText("我的文件 >  文件 ");
             dataPathList=  queryDocument();
             for(int i=0;i<dataPathList.size();i++){
@@ -171,14 +174,14 @@ public class CommonActivity extends AppCompatActivity {
             }
 
 
-        }else  if (type.equals("download")){
+        } else if (type.equals("download")) {
             mTextView.setText("我的文件 >  下载 ");
             dataPathList=  queryDownLoad();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
 
-        }else  if (type.equals("apk")){
+        } else if (type.equals("apk")) {
             mTextView.setText("我的文件 >  apk  ");
             dataPathList=  queryAPK();
             for(int i=0;i<dataPathList.size();i++){
@@ -193,7 +196,7 @@ public class CommonActivity extends AppCompatActivity {
                     path, true);
             for (String filePath : dataPathList) {
                 File file = new File(filePath);
-                Log.d("file","file"+file.getName()+file.getAbsolutePath());
+                Log.d("file", "file" + file.getName() + file.getAbsolutePath());
                 data.add(new CommonBean(bitmap, file.getName(),
                         file.getAbsolutePath(), false));
             }
@@ -205,15 +208,15 @@ public class CommonActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (arrangementFlag == false){
+        if (arrangementFlag == false) {
             mLayoutManager = new LinearLayoutManager(this);
             mListView.setLayoutManager(mLayoutManager);
-        }else {
+        } else {
             mLayoutManager = new
                     StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
             mListView.setLayoutManager(mLayoutManager);
         }
-        adapter = new FileListAdapter(CommonActivity.this, (ArrayList<CommonBean>) data,arrangementFlag);
+        adapter = new FileListAdapter(CommonActivity.this, (ArrayList<CommonBean>) data, arrangementFlag);
         adapter.setOnItemClickListener(new FileListAdapter.OnRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -224,9 +227,27 @@ public class CommonActivity extends AppCompatActivity {
             }
         });
         adapter.setOnItemLongClickListener(new FileListAdapter.OnRecyclerItemLongListener() {
+            String[] fileOpItemStr = {"复制","剪切","删除","..."};
+
             @Override
             public void onItemLongClick(View view, int position) {
-                Toast.makeText(CommonActivity.this,data.get(position).getContent(),Toast.LENGTH_LONG).show();
+                DialogInterface.OnClickListener fileOpDialogOnClickListener = new DialogInterface
+                        .OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(CommonActivity.this, fileOpItemStr[which],
+                                Toast.LENGTH_LONG).show();
+                    }
+                };
+
+                DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+                    }
+                };
+                new AlertDialog.Builder(CommonActivity.this)
+                        .setTitle("文件操作")
+                        .setItems(fileOpItemStr, fileOpDialogOnClickListener)
+                        .setNegativeButton("取消",onClickListener).show();
             }
         });
         mListView.setAdapter(adapter);
