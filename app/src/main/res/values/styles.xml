@@ -15,4 +15,12 @@
         <item name="android:textColorPrimary">#00ff00</item>
     </style>
 
+    <!--toolbar弹出菜单样式-->
+    <style name="ToolBarPopupTheme" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
+    </style>
+    <style name="OverflowMenuStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>
+    </style>
+
 </resources>
