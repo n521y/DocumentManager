@@ -148,7 +148,7 @@ public class FileListActivity extends Activity implements View.OnClickListener {
         cancelButton.setOnClickListener(this);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
         //初始化菜单
-        mToolbar.inflateMenu(R.menu.menu_common_activity);
+        mToolbar.inflateMenu(R.menu.menu_phone_activity);
         //设置菜单点击事件
         mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override

@@ -31,6 +31,7 @@
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:background="@color/normalBackgroundColor"
         android:orientation="horizontal"
         android:visibility="gone" >
 
@@ -39,12 +40,14 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
+            android:background="@drawable/btn_background"
             android:text="粘贴" />
 
         <Button
             android:id="@+id/id_mainBottomBarCancelButton"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:background="@drawable/btn_background"
             android:layout_weight="1"
             android:text="取消" />
     </LinearLayout>

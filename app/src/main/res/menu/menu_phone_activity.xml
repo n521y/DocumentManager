@@ -17,6 +17,16 @@
         app:showAsAction="ifRoom"
         android:title="排列方式" />
 
+    <item android:id="@+id/action_addNewFolder"
+        android:title="新建文件夹"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_addNewFile"
+        android:title="新建文件"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/action_settings"
         android:title="设置"
         android:orderInCategory="100"
