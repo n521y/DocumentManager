@@ -83,6 +83,18 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
 
     }
 
+    public void removeItem(int position){
+        arrayList.remove(position);
+        //notifyItemRemoved(position);
+        notifyDataSetChanged();
+    }
+
+    public void renameItem(int position,String newName){
+        arrayList.get(position).setTitle(newName);
+        notifyDataSetChanged();
+    }
+
+
     @Override
     public int getItemCount() {
         return arrayList.size();

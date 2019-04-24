@@ -1,5 +1,6 @@
 package com.example.app.documentmanager;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,9 +29,11 @@ import android.widget.Toast;
 import com.example.app.documentmanager.adapter.FileListAdapter;
 import com.example.app.documentmanager.bean.CommonBean;
 import com.example.app.documentmanager.sql.MyDatabaseHelper;
+import com.example.app.documentmanager.utils.DdaCRUD;
 import com.example.app.documentmanager.utils.FileCategoryHelper;
 import com.example.app.documentmanager.utils.FileHelper;
 import com.example.app.documentmanager.utils.FileOpen;
+import com.example.app.documentmanager.utils.MediaStoreCRUD;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,6 +56,8 @@ public class CommonActivity extends AppCompatActivity {
     private MyDatabaseHelper myDatabaseHelper;
     private SQLiteDatabase mDb;
     private FileOpen mFileOpen;
+    private MediaStoreCRUD mMediaStoreCRUD;
+    private DdaCRUD mDdaCRUD;
 
     private Handler mHandler = new Handler() {
 
@@ -144,6 +150,8 @@ public class CommonActivity extends AppCompatActivity {
         mTextView = (TextView) findViewById(R.id.common_path);
         mListView = (RecyclerView) findViewById(R.id.datalist);
         mFileOpen = new FileOpen(mContext);
+        mMediaStoreCRUD=new MediaStoreCRUD(mContext);
+        mDdaCRUD = new DdaCRUD(mContext,mDb);
     }
 
 
@@ -171,7 +179,7 @@ public class CommonActivity extends AppCompatActivity {
 
         } else if (type.equals("document")) {
             mTextView.setText("我的文件 >  文件 ");
-            dataPathList=  queryDocument();
+            dataPathList=  mDdaCRUD.queryDocument();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
@@ -179,14 +187,14 @@ public class CommonActivity extends AppCompatActivity {
 
         } else if (type.equals("download")) {
             mTextView.setText("我的文件 >  下载 ");
-            dataPathList=  queryDownLoad();
+            dataPathList=  mDdaCRUD.queryDownLoad();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
 
         } else if (type.equals("apk")) {
             mTextView.setText("我的文件 >  apk  ");
-            dataPathList=  queryAPK();
+            dataPathList=  mDdaCRUD.queryAPK();
             for(int i=0;i<dataPathList.size();i++){
                 Log.d("dataPathList",dataPathList.get(i));
             }
@@ -241,9 +249,23 @@ public class CommonActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case 0:
-                                rename(filePath);
+                                rename(filePath,position);
                                 break;
                             case 1:
+                                if (mType.equals("image")) {
+                                    mMediaStoreCRUD.deleteItemFromMediaStoreImages(filePath);
+                                } else if (mType.equals("audio")) {
+                                    mMediaStoreCRUD.deleteItemFromMediaStoreAudios(filePath);
+                                } else if (mType.equals("video")) {
+                                    mMediaStoreCRUD.deleteItemFromMediaStoreVideos(filePath);
+                                } else if (mType.equals("document")) {
+                                    mDdaCRUD.deleteDocument(filePath);
+                                } else if (mType.equals("download")) {
+                                    mDdaCRUD.deleteDownLoad(filePath);
+                                } else if (mType.equals("apk")) {
+                                    mDdaCRUD.deleteApk(filePath);
+                                }
+                                adapter.removeItem(position);
                                 FileHelper.deleteFile(filePath);
                                 Toast.makeText(CommonActivity.this, "删除成功",
                                         Toast.LENGTH_LONG).show();
@@ -275,8 +297,8 @@ public class CommonActivity extends AppCompatActivity {
 
     }
     //重命名
-    private void rename(final String filePath) {
-
+    private void rename(final String filePath, final int position) {
+        Log.d("CommonActivity.rename",mType);
         final AlertDialog alertDialog = new AlertDialog.Builder(CommonActivity.this).create();
         View renameDialog = View.inflate(CommonActivity.this, R.layout.dialog_commonactivity_rename,null);
         File file = new File(filePath);
@@ -293,6 +315,21 @@ public class CommonActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String newName = newEditText.getText().toString().trim();
+                adapter.renameItem(position,newName);
+
+                if (mType.equals("image")) {
+                    mMediaStoreCRUD.renameItemFromMediaStoreImages(filePath,newName);
+                } else if (mType.equals("audio")) {
+                    mMediaStoreCRUD.renameItemFromMediaStoreAudios(filePath,newName);
+                } else if (mType.equals("video")) {
+                    mMediaStoreCRUD.renameItemFromMediaStoreVideos(filePath,newName);
+                } else if (mType.equals("document")) {
+                    mDdaCRUD.renameDocument(filePath,newName);
+                } else if (mType.equals("download")) {
+                    mDdaCRUD.renameDownLoad(filePath,newName);
+                } else if (mType.equals("apk")) {
+                    mDdaCRUD.renameApk(filePath,newName);
+                }
                 boolean success=FileHelper.reNameFile(filePath,newName);
                 if (success){
                     Toast.makeText(CommonActivity.this, "重命名成功", Toast.LENGTH_LONG).show();
@@ -312,62 +349,5 @@ public class CommonActivity extends AppCompatActivity {
         });
     }
 
-    private  List<String>  queryAPK(){
-        List<String> dataPathList = new ArrayList<>();
-        Cursor cursor = mDb.query("Apk",null,null,null,null,null,null,null);
-        Log.d("MainActivity", "cursor name is " + cursor.toString());
-        Log.d("MainActivity", "cursor name is " + cursor.moveToFirst());
-        if (cursor.moveToFirst()) {
-            do {
-// 遍历Cursor对象，取出数据并打印
-                dataPathList.add(cursor.getString(cursor.getColumnIndex
-                        ("Apk_uri")));
-                String id = cursor.getString(cursor.getColumnIndex
-                        ("id"));
-                Log.d("MainActivity", "Apkid :" + id);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return dataPathList;
-
-    }
-
-    private  List<String>  queryDocument(){
-        List<String> dataPathList = new ArrayList<>();
-        Cursor cursor = mDb.query("Document",null,null,null,null,null,null,null);
-        Log.d("MainActivity", "Document name is " + cursor.toString());
-        Log.d("MainActivity", "Document name is " + cursor.moveToFirst());
-        if (cursor.moveToFirst()) {
-            do {
-// 遍历Cursor对象，取出数据并打印
-                dataPathList.add(cursor.getString(cursor.getColumnIndex
-                        ("Document_Uri")));
-                String id = cursor.getString(cursor.getColumnIndex
-                        ("id"));
-                Log.d("MainActivity", "Documentid :" + id);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return dataPathList;
-    }
-
-    private  List<String>  queryDownLoad(){
-        List<String> dataPathList = new ArrayList<>();
-        Cursor cursor = mDb.query("DownLoad",null,null,null,null,null,null,null);
-        Log.d("MainActivity", "DownLoad name is " + cursor.toString());
-        Log.d("MainActivity", "DownLoad name is " + cursor.moveToFirst());
-        if (cursor.moveToFirst()) {
-            do {
-// 遍历Cursor对象，取出数据并打印
-                dataPathList.add(cursor.getString(cursor.getColumnIndex
-                        ("DownLoad_Uri")));
-                String id = cursor.getString(cursor.getColumnIndex
-                        ("id"));
-                Log.d("MainActivity", "DownLoadid :" + id);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return dataPathList;
-    }
 
 }
