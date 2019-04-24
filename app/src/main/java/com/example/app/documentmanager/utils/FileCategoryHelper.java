@@ -28,6 +28,9 @@ public class FileCategoryHelper {
 	private List<String> mDocumentList;
 	private List<String> mCompressionList;
 	private List<String> mApkList;
+	private List<String> mDocumentNameList;
+	private List<String> mCompressionNameList;
+	private List<String> mApkNameList;
 
 	public FileCategoryHelper() {
 		mAudioList=new ArrayList<String>();
@@ -36,8 +39,37 @@ public class FileCategoryHelper {
 		mDocumentList=new ArrayList<String>();
 		mCompressionList=new ArrayList<String>();
 		mApkList=new ArrayList<String>();
+
+	    mDocumentNameList =new ArrayList<String>() ;
+		mCompressionNameList=new ArrayList<String>();
+		mApkNameList=new ArrayList<String>();
+
 	}
-	
+
+	public List<String> getmDocumentNameList() {
+		return mDocumentNameList;
+	}
+
+	public void setmDocumentNameList(List<String> mDocumentNameList) {
+		this.mDocumentNameList = mDocumentNameList;
+	}
+
+	public List<String> getmCompressionNameList() {
+		return mCompressionNameList;
+	}
+
+	public void setmCompressionNameList(List<String> mCompressionNameList) {
+		this.mCompressionNameList = mCompressionNameList;
+	}
+
+	public List<String> getmApkNameList() {
+		return mApkNameList;
+	}
+
+	public void setmApkNameList(List<String> mApkNameList) {
+		this.mApkNameList = mApkNameList;
+	}
+
 	public static List<String> getSystemAudio(Context context)
 	{
 		List<String> fileList=new ArrayList<String>();
@@ -127,16 +159,19 @@ public class FileCategoryHelper {
 						if(type.equals("apk"))
 						{
 							Log.d("apk",files.getAbsolutePath());
+							mApkNameList.add(files.getName());
 							mApkList.add(files.getAbsolutePath());
 						}
 						else if(type.equals("compression"))
 						{
 							Log.d("compression",files.getAbsolutePath());
+							mCompressionNameList.add(file.getName());
 							mCompressionList.add(files.getAbsolutePath());
 						}
 						else if(type.equals("document"))
 						{
 							Log.d("document",files.getAbsolutePath());
+							mDocumentNameList.add(file.getName());
 							mDocumentList.add(files.getAbsolutePath());
 						}
 					}

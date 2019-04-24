@@ -10,13 +10,16 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     public static final String CREATE_DOCUMNET = "create table Document ("
             + "id integer primary key autoincrement, "
+            + "Document_name text,"
             + "Document_Uri text)";
     public static final String CREATE_DOWNLOAD = "create table DownLoad ("
             + "id integer primary key autoincrement, "
+            + "DownLoad_name text,"
             + "DownLoad_Uri text)";
 
     public static final String CREATE_APK= "create table Apk ("
             + "id integer primary key autoincrement, "
+            + "Apk_name text,"
             + "Apk_uri text)";
 
 
@@ -36,6 +39,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("drop table if exists Document");
+        db.execSQL("drop table if exists DownLoad");
+        db.execSQL("drop table if exists Apk");
+        onCreate(db);
 
     }
 }

@@ -91,7 +91,7 @@ public class CommonActivity extends AppCompatActivity {
         setContentView(R.layout.common_layout);
         Intent intent=getIntent();
         mType=intent.getType();
-        myDatabaseHelper = new MyDatabaseHelper(this, "Wenjian.db", null, 1);
+        myDatabaseHelper = new MyDatabaseHelper(this, "Wenjian.db", null, 2);
         mDb=myDatabaseHelper.getWritableDatabase();
         Toast.makeText(CommonActivity.this , "intent"+intent.getType() , Toast.LENGTH_SHORT).show();
         init();
