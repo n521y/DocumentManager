@@ -1,8 +1,11 @@
 package com.example.app.documentmanager;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -19,11 +23,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.app.documentmanager.adapter.PhoneFileAdapter;
 import com.example.app.documentmanager.bean.FileEntity;
+import com.example.app.documentmanager.utils.FileHelper;
 import com.example.app.documentmanager.utils.FileOpen;
 
 
@@ -32,7 +40,7 @@ import com.example.app.documentmanager.utils.FileOpen;
  *
  *
  */
-public class FileListActivity extends Activity {
+public class FileListActivity extends Activity implements View.OnClickListener {
 
     private RecyclerView.LayoutManager mLayoutManager;
     private String niupath;
@@ -45,6 +53,10 @@ public class FileListActivity extends Activity {
     String sdRootPath;
     private boolean mFlag;
     private FileOpen mFileOpen;
+    private List<String> mCopyFileList;
+    private Button pasteButton;
+    private Button cancelButton;
+    private LinearLayout listBottomBarLinearLayout;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -126,9 +138,14 @@ public class FileListActivity extends Activity {
     }
 
     private void initView() {
+        pasteButton = (Button)findViewById(R.id.id_mainBottomBarPasteButton);
+        cancelButton = (Button)findViewById(R.id.id_mainBottomBarCancelButton);
         mToolbar = (Toolbar)findViewById(R.id.activity_filelidt_toolbar);
         mPathTextView = (TextView) findViewById(R.id.activity_filelidt__path);
+        listBottomBarLinearLayout =(LinearLayout)findViewById(R.id.id_mainBottomBar);
         mFileOpen = new FileOpen(mContext);
+        pasteButton.setOnClickListener(this);
+        cancelButton.setOnClickListener(this);
         mToolbar.setNavigationIcon(R.drawable.ic_back);
         //初始化菜单
         mToolbar.inflateMenu(R.menu.menu_common_activity);
@@ -146,7 +163,15 @@ public class FileListActivity extends Activity {
                     Intent intent = new Intent(FileListActivity.this,CommonActivity.class);
                     startActivity(intent);
                     Toast.makeText(FileListActivity.this , "setting" , Toast.LENGTH_SHORT).show();
-                }else if(menuItemId == R.id.action_grid){
+                }else if(menuItemId == R.id.action_addNewFolder){
+                    Toast.makeText(FileListActivity.this , "addNewFolder" , Toast.LENGTH_SHORT).show();
+                    creatNewFolder(currentFile.getAbsolutePath(),false);
+
+                } else if(menuItemId == R.id.action_addNewFile){
+                    Toast.makeText(FileListActivity.this , "addNewFile"+currentFile.getAbsolutePath() , Toast.LENGTH_SHORT).show();
+                    creatNewFolder(currentFile.getAbsolutePath(),true);
+
+                } else if(menuItemId == R.id.action_grid){
                     if(mFlag == false){
                         mFlag=true;
                         item.setIcon(R.drawable.ic_grid);
@@ -235,9 +260,92 @@ public class FileListActivity extends Activity {
             }
         });
         mAdapter.setOnItemLongClickListener(new PhoneFileAdapter.OnRecyclerItemLongListener() {
+            String[] fileOpItemStr = {"重命名","删除","移动","查看文件属性"};
+            List<String> stringList = new ArrayList<>();
             @Override
             public void onItemLongClick(View view, int position) {
-                Toast.makeText(FileListActivity.this,"itemlong",Toast.LENGTH_LONG).show();
+                Toast.makeText(FileListActivity.this,"itemlong"+mList.get(position).getFilePath(),Toast.LENGTH_LONG).show();
+                File file = new File(mList.get(position).getFilePath());
+                Toast.makeText(FileListActivity.this,"itemlong"+file.getParent(),Toast.LENGTH_LONG).show();
+                final String filePath = mList.get(position).getFilePath();
+                stringList.add(filePath);
+                final DialogInterface.OnClickListener fileOpDialogOnClickListener = new DialogInterface
+                        .OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                rename(filePath);
+                                break;
+                            case 1:
+                                FileHelper.deleteFileList(stringList);
+                                Toast.makeText(FileListActivity.this, "删除成功",
+                                        Toast.LENGTH_LONG).show();
+                                break;
+                            case 2:
+                                listBottomBarLinearLayout.setVisibility(View.VISIBLE);
+                                mCopyFileList = new ArrayList<String>();
+                                mCopyFileList.add(filePath);
+
+                                break;
+                            case 3:
+                                List<String> resultList = new ArrayList<String>();
+                                resultList=FileHelper.getFileAttribute(filePath);
+                                FileHelper.showFileAttribute(resultList,mContext);
+                                break;
+                            default:
+
+                                break;
+                        }
+                    }
+                };
+
+                DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+
+                    }
+                };
+                new AlertDialog.Builder(FileListActivity.this)
+                        .setTitle("文件操作")
+                        .setItems(fileOpItemStr, fileOpDialogOnClickListener).show();
+            }
+        });
+    }
+
+    //重命名
+    private void rename(final String filePath) {
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(FileListActivity.this).create();
+        View renameDialog = View.inflate(FileListActivity.this, R.layout.dialog_commonactivity_rename,null);
+        File file = new File(filePath);
+        final String name = file.getName();
+        alertDialog.setView(renameDialog);
+        alertDialog.show();
+        final EditText newEditText = alertDialog.findViewById(R.id.edittext_dialog_commonactivity_newname);
+        Button confimButton = alertDialog.findViewById(R.id.button_commonactivity_rename_dialog_confirm);
+        Button cancelButton = alertDialog.findViewById(R.id.button_commonactivity_rename_dialog_cancel);
+        //显示文件原名称
+        newEditText.setText(name);
+        //重命名弹出框确定按钮
+        confimButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String newName = newEditText.getText().toString().trim();
+                boolean success=FileHelper.reNameFile(filePath,newName);
+                if (success){
+                    Toast.makeText(FileListActivity.this, "重命名成功", Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(FileListActivity.this, "重命名失败", Toast.LENGTH_LONG).show();
+
+                }
+                alertDialog.dismiss();
+            }
+        });
+        //重命名弹出框取消按钮
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
             }
         });
     }
@@ -285,5 +393,55 @@ public class FileListActivity extends Activity {
         }
         mHandler.sendEmptyMessage(1);
 
+    }
+
+
+
+
+    private void creatNewFolder(final String parentPath, final boolean isFile){
+        final EditText editTextView = new EditText(mContext);
+        new AlertDialog.Builder(mContext).setTitle("新文件名")
+                .setView(editTextView).setNegativeButton("取消", null)
+                .setNeutralButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String fileName=editTextView.getText().toString();
+                        if(fileName==""||fileName.replaceAll(" ", "").toLowerCase()=="")
+                        {
+                            Toast.makeText(mContext, "未输入有效文件名，无法创建文件",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (!FileHelper.newFile(parentPath, fileName, isFile)) {
+                            Toast.makeText(mContext, "创建文件失败",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, "创建文件成功",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).show();
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.id_mainBottomBarPasteButton:
+                Toast.makeText(mContext, "id_mainBottomBarPasteButton",
+                        Toast.LENGTH_SHORT).show();
+                Thread pasteThread = new Thread() {
+                    @Override
+                    public void run() {
+
+                        FileHelper.copyFile(mCopyFileList,currentFile.getAbsolutePath(), false);
+                    }
+                };
+                pasteThread.start();
+                listBottomBarLinearLayout.setVisibility(View.GONE);
+                break;
+            case R.id.id_mainBottomBarCancelButton:
+                listBottomBarLinearLayout.setVisibility(View.GONE);
+                break;
+        }
     }
 }
