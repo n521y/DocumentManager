@@ -5,47 +5,22 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".RecentActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/recenttoolbar"
+        android:id="@+id/recent_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:titleMarginStart="0dp"
-        app:title="最近文件"
-        app:navigationIcon="@drawable/ic_back"
-        >
-
-    </android.support.v7.widget.Toolbar>
-
-    <TextView
-        android:text="今天"
-        android:layout_marginLeft="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        app:popupTheme="@style/ToolBarPopupTheme"
+        ></android.support.v7.widget.Toolbar>
 
     <android.support.v7.widget.RecyclerView
-
+        android:id="@+id/recycler_view"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-    </android.support.v7.widget.RecyclerView>
-
-    <TextView
-        android:text="本周"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <android.support.v7.widget.RecyclerView
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
     </android.support.v7.widget.RecyclerView>
 
 
