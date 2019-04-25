@@ -3,6 +3,7 @@ package com.example.app.documentmanager;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,23 +22,24 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.app.documentmanager.adapter.FileListAdapter;
 import com.example.app.documentmanager.bean.CommonBean;
+import com.example.app.documentmanager.utils.FileOpen;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class SearchActivity extends AppCompatActivity  implements View.OnClickListener {
     private RecyclerView mListView;
     private FileListAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<CommonBean> mDatas;
-    private SQLiteDatabase mDb;
-
+    private String mSearchType;
 
 
     @SuppressLint("ResourceType")
@@ -45,10 +47,12 @@ public class SearchActivity extends AppCompatActivity  implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        mLayoutManager = new LinearLayoutManager(this);
         mListView =findViewById(R.id.list);
+        mListView.setLayoutManager(new LinearLayoutManager(this));
+        mSearchType = getIntent().getType();
         mDatas = new ArrayList<CommonBean>();
         mAdapter = new FileListAdapter(this,mDatas,false);
+        mAdapter.setOnItemClickListener(mItemClickListener);
         Toolbar toolbar = (Toolbar)findViewById(R.id.serch_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,7 +81,9 @@ public class SearchActivity extends AppCompatActivity  implements View.OnClickLi
                 String keyword = serchText.getText().toString().trim();
                 Toast.makeText(SearchActivity.this, serchText.getText()+"", Toast.LENGTH_SHORT).show();
                 //进行搜索功能实现
-                searchAfterInputKey(keyword);
+                mDatas.clear();
+                searchMultiMedia(keyword,mSearchType,mDatas);
+                mListView.setAdapter(mAdapter);
             }
         });
         serchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -89,23 +95,67 @@ public class SearchActivity extends AppCompatActivity  implements View.OnClickLi
         });
     }
 
-    //每次输入后搜索符合输入的信息
-    private void searchAfterInputKey(String keyword) {
-        mDatas.clear();
-        //条件查询文件，获取游标
-        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String columnName = MediaStore.Images.Media.DISPLAY_NAME;
-        ContentResolver resolver = this.getContentResolver();
-        Cursor cursor= resolver.query( uri,null, columnName+" like '%"+keyword+"%'", null, null);
-        //取出游标中的数据存放到列表中
-        String fileName = null;
-        while (cursor.moveToNext()) {
-            fileName = cursor.getString(cursor.getColumnIndex(columnName));
-            mDatas.add(new CommonBean(null,fileName,null));
+    private FileListAdapter.OnRecyclerViewItemClickListener mItemClickListener = new
+            FileListAdapter.OnRecyclerViewItemClickListener() {
+        @Override
+        public void onItemClick(View view, int data) {
+            String path = mDatas.get(data).getContent();
+            Intent intent = FileOpen.openFile(path);
+            startActivity(intent);
         }
-        //设置布局显示RecycleView
-        mListView.setLayoutManager(mLayoutManager);
-        mListView.setAdapter(mAdapter);
+    };
+
+    //根据关键字查询文件
+    private void searchMultiMedia(String keyword,String queryType,List<CommonBean> dataList) {
+        boolean singleType = true;
+        //定义查询信息
+        Uri uri = null;
+        String pathColumnName = null;
+        String dispColumnName = null;
+        switch (queryType) {
+            case "image":{
+                uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                dispColumnName = MediaStore.Images.Media.DISPLAY_NAME;
+                pathColumnName = MediaStore.Images.Media.DATA;
+                break;
+            }
+            case "audio":{
+                uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                dispColumnName = MediaStore.Audio.Media.DISPLAY_NAME;
+                pathColumnName = MediaStore.Audio.Media.DATA;
+                break;
+            }
+            case "video":{
+                uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                dispColumnName = MediaStore.Video.Media.DISPLAY_NAME;
+                pathColumnName = MediaStore.Video.Media.DATA;
+                break;
+            }
+            default:{
+                //递归搜索
+                searchMultiMedia(keyword,"image",dataList);
+                searchMultiMedia(keyword,"audio",dataList);
+                searchMultiMedia(keyword,"video",dataList);
+                //单类型查询标志位更新
+                singleType = false;
+                break;
+            }
+        }
+        if (singleType && !"".equals(keyword)) {
+            //条件查询文件，获取游标
+            ContentResolver resolver = this.getContentResolver();
+            Cursor cursor= resolver.query( uri,null, dispColumnName+" like '%"+keyword+"%'", null, null);
+            //取出游标中的数据存放到数据列表中
+            String fileName = null;
+            String filePath = null;
+            while (cursor.moveToNext()) {
+                fileName = cursor.getString(cursor.getColumnIndex(dispColumnName));
+                filePath = cursor.getString(cursor.getColumnIndex(pathColumnName));
+                dataList.add(new CommonBean(null,fileName,filePath));
+            }
+            //关闭游标
+            cursor.close();
+        }
     }
 
 

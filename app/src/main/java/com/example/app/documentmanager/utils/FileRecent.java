@@ -45,10 +45,10 @@ public class FileRecent implements RecentInformationCall{
 
     @Override
     public List<String> getMainDisplayImage(Context context) {
-        List<String> fileList = new ArrayList<>();
+        List<String> fileList = getRecentOneMonthImage(context);
         Cursor cursor = context.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null,
-                null,"date_modified  DESC");
+                null, "date_modified DESC");
         while (cursor.moveToNext()) {
             String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             fileList.add(filePath);
@@ -57,7 +57,6 @@ public class FileRecent implements RecentInformationCall{
         return fileList;
     }
 
-    @Override
     public List<String> getRecentOneMonthImage(Context context) {
         return getRecentSystemImage(context, ONE_MONTH);
     }

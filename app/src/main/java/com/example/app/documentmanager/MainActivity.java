@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mContext = getApplicationContext();
         mFileOpen =new FileOpen(mContext);
         init();
-        mRecentImageListPath = mRecentInformationCall.getRecentOneMonthImage(mContext);
+        mRecentImageListPath = mRecentInformationCall.getMainDisplayImage(mContext);
         toolbar.inflateMenu(R.menu.menu_main);
         toolbar.setTitle("文件管理器");
         if(mRecentImageListPath.size() > 0){
@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(menuItemId == R.id.action_serch){
                     Toast.makeText(MainActivity.this , "serch" , Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                    intent.setType("allType");
                     startActivity(intent);
 
                 }else if (menuItemId == R.id.action_settings){
