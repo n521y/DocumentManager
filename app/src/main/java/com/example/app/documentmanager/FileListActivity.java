@@ -34,6 +34,9 @@ import com.example.app.documentmanager.bean.FileEntity;
 import com.example.app.documentmanager.utils.FileHelper;
 import com.example.app.documentmanager.utils.FileOpen;
 
+import static com.example.app.documentmanager.bean.FileEntity.Type.FILE;
+import static com.example.app.documentmanager.bean.FileEntity.Type.FLODER;
+
 
 /**
  * 文件列表 界面
@@ -240,12 +243,12 @@ public class FileListActivity extends Activity implements View.OnClickListener {
             public void onItemClick(View view, int data) {
                 Toast.makeText(FileListActivity.this,"item",Toast.LENGTH_LONG).show();
                 final FileEntity entity = mList.get(data);
-                if(entity.getFileType() == FileEntity.Type.FLODER){
+                if(entity.getFileType() == FLODER){
                     currentFile = new File(entity.getFilePath());
                     niupath=currentFile.getAbsolutePath().substring(19);
                     mPathTextView.setText("我的文件"+niupath);
                     getData(entity.getFilePath());
-                }else if(entity.getFileType() == FileEntity.Type.FILE){
+                }else if(entity.getFileType() == FILE){
                     final File file = new File(entity.getFilePath());
                     runOnUiThread(new Runnable() {
                         @Override
@@ -263,7 +266,7 @@ public class FileListActivity extends Activity implements View.OnClickListener {
             String[] fileOpItemStr = {"重命名","删除","移动","查看文件属性"};
             List<String> stringList = new ArrayList<>();
             @Override
-            public void onItemLongClick(View view, int position) {
+            public void onItemLongClick(View view, final int position) {
                 Toast.makeText(FileListActivity.this,"itemlong"+mList.get(position).getFilePath(),Toast.LENGTH_LONG).show();
                 File file = new File(mList.get(position).getFilePath());
                 Toast.makeText(FileListActivity.this,"itemlong"+file.getParent(),Toast.LENGTH_LONG).show();
@@ -274,9 +277,10 @@ public class FileListActivity extends Activity implements View.OnClickListener {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case 0:
-                                rename(filePath);
+                                rename(filePath,position);
                                 break;
                             case 1:
+                                mAdapter.removeItem(position);
                                 FileHelper.deleteFileList(stringList);
                                 Toast.makeText(FileListActivity.this, "删除成功",
                                         Toast.LENGTH_LONG).show();
@@ -313,7 +317,7 @@ public class FileListActivity extends Activity implements View.OnClickListener {
     }
 
     //重命名
-    private void rename(final String filePath) {
+    private void rename(final String filePath, final int position) {
 
         final AlertDialog alertDialog = new AlertDialog.Builder(FileListActivity.this).create();
         View renameDialog = View.inflate(FileListActivity.this, R.layout.dialog_commonactivity_rename,null);
@@ -333,6 +337,7 @@ public class FileListActivity extends Activity implements View.OnClickListener {
                 final String newName = newEditText.getText().toString().trim();
                 boolean success=FileHelper.reNameFile(filePath,newName);
                 if (success){
+                    mAdapter.renameItem(position,newName);
                     Toast.makeText(FileListActivity.this, "重命名成功", Toast.LENGTH_LONG).show();
                 }else {
                     Toast.makeText(FileListActivity.this, "重命名失败", Toast.LENGTH_LONG).show();
@@ -379,10 +384,10 @@ public class FileListActivity extends Activity implements View.OnClickListener {
                 FileEntity entity = new FileEntity();
                 boolean isDirectory = files[i].isDirectory();
                 if(isDirectory ==true){
-                    entity.setFileType(FileEntity.Type.FLODER);
+                    entity.setFileType(FLODER);
 //					entity.setFileName(files[i].getPath());
                 }else{
-                    entity.setFileType(FileEntity.Type.FILE);
+                    entity.setFileType(FILE);
                 }
                 entity.setFileName(files[i].getName().toString());
                 entity.setFilePath(files[i].getAbsolutePath());
@@ -415,6 +420,19 @@ public class FileListActivity extends Activity implements View.OnClickListener {
                             Toast.makeText(mContext, "创建文件失败",
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            Log.d("BarPasteButtonmList",""+parentPath);
+                            Log.d("BarPasteButtonmList",""+mList.size());
+                            File file = new File(parentPath + "/" + fileName);
+                            FileEntity fileEntity =new FileEntity();
+                            if(file.isDirectory()){
+                                fileEntity.setFileType(FLODER);
+                            }else {
+                                fileEntity.setFileType(FILE);
+                            }
+                            fileEntity.setFileName(file.getName());
+                            fileEntity.setFilePath(file.getAbsolutePath());
+                            mList.add(fileEntity);
+                            mAdapter.changeItem(mList);
                             Toast.makeText(mContext, "创建文件成功",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -429,14 +447,28 @@ public class FileListActivity extends Activity implements View.OnClickListener {
             case R.id.id_mainBottomBarPasteButton:
                 Toast.makeText(mContext, "id_mainBottomBarPasteButton",
                         Toast.LENGTH_SHORT).show();
+                Log.d("BarPasteButton",currentFile.getAbsolutePath());
+
+                Log.d("BarPasteButtonmList",""+mList.size());
                 Thread pasteThread = new Thread() {
                     @Override
                     public void run() {
-
-                        FileHelper.copyFile(mCopyFileList,currentFile.getAbsolutePath(), false);
+                        List<String> resultLidt=FileHelper.copyFile(mCopyFileList,currentFile.getAbsolutePath(), false);
+                        Log.d("BarPasteButtonmList",""+resultLidt.get(0));
+                        File file=new File(resultLidt.get(0));
+                        FileEntity fileEntity =new FileEntity();
+                        if(file.isDirectory()){
+                            fileEntity.setFileType(FLODER);
+                        }else {
+                            fileEntity.setFileType(FILE);
+                        }
+                        fileEntity.setFileName(file.getName());
+                        fileEntity.setFilePath(file.getAbsolutePath());
+                        mList.add(fileEntity);
                     }
                 };
                 pasteThread.start();
+                mAdapter.changeItem(mList);
                 listBottomBarLinearLayout.setVisibility(View.GONE);
                 break;
             case R.id.id_mainBottomBarCancelButton:

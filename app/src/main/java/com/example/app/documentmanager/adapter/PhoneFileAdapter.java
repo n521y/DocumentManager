@@ -127,4 +127,19 @@ public class PhoneFileAdapter extends RecyclerView.Adapter<PhoneFileAdapter.View
     }
 
 
+    public void removeItem(int position){
+        arrayList.remove(position);
+        notifyDataSetChanged();
+    }
+
+    public void changeItem(ArrayList<FileEntity> fileList){
+        arrayList=fileList;
+        notifyDataSetChanged();
+    }
+
+    public void renameItem(int position,String newName){
+        arrayList.get(position).setFileName(newName);
+        notifyDataSetChanged();
+    }
+
 }
