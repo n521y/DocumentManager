@@ -2,14 +2,19 @@ package com.example.app.documentmanager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,14 +25,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.app.documentmanager.adapter.FileListAdapter;
+import com.example.app.documentmanager.bean.CommonBean;
+
+import java.util.ArrayList;
+
 
 public class SearchActivity extends AppCompatActivity  implements View.OnClickListener {
+    private RecyclerView mListView;
+    private FileListAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private ArrayList<CommonBean> mDatas;
+    private SQLiteDatabase mDb;
+
+
 
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        mLayoutManager = new LinearLayoutManager(this);
+        mListView =findViewById(R.id.list);
+        mDatas = new ArrayList<CommonBean>();
+        mAdapter = new FileListAdapter(this,mDatas,false);
         Toolbar toolbar = (Toolbar)findViewById(R.id.serch_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,9 +74,10 @@ public class SearchActivity extends AppCompatActivity  implements View.OnClickLi
 
             @Override
             public void afterTextChanged(Editable s) {
+                String keyword = serchText.getText().toString().trim();
                 Toast.makeText(SearchActivity.this, serchText.getText()+"", Toast.LENGTH_SHORT).show();
                 //进行搜索功能实现
-
+                searchAfterInputKey(keyword);
             }
         });
         serchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -65,6 +87,25 @@ public class SearchActivity extends AppCompatActivity  implements View.OnClickLi
                 return false;
             }
         });
+    }
+
+    //每次输入后搜索符合输入的信息
+    private void searchAfterInputKey(String keyword) {
+        mDatas.clear();
+        //条件查询文件，获取游标
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String columnName = MediaStore.Images.Media.DISPLAY_NAME;
+        ContentResolver resolver = this.getContentResolver();
+        Cursor cursor= resolver.query( uri,null, columnName+" like '%"+keyword+"%'", null, null);
+        //取出游标中的数据存放到列表中
+        String fileName = null;
+        while (cursor.moveToNext()) {
+            fileName = cursor.getString(cursor.getColumnIndex(columnName));
+            mDatas.add(new CommonBean(null,fileName,null));
+        }
+        //设置布局显示RecycleView
+        mListView.setLayoutManager(mLayoutManager);
+        mListView.setAdapter(mAdapter);
     }
 
 

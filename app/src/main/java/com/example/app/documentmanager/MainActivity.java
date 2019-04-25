@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myDatabaseHelper = new MyDatabaseHelper(this, "Wenjian.db", null, 1);
+        myDatabaseHelper = new MyDatabaseHelper(this, "Wenjian.db", null, 2);
         mDb=myDatabaseHelper.getWritableDatabase();
         mContext = getApplicationContext();
         init();
@@ -113,15 +113,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private  void initDataBae(){
-        ContentValues Documentvalues = new ContentValues();
         FileCategoryHelper helper = new FileCategoryHelper();
         helper.getSystemFileCategory("/storage/emulated/0",mContext);
         Log.d("MainActivity", "Documentvalues "+helper.getSystemDocument().size() );
         Log.d("MainActivity", "getSystemCompression "+helper.getSystemCompression().size() );
         Log.d("MainActivity", "getSystemApk "+helper.getSystemApk().size() );
 
+        ContentValues Documentvalues = new ContentValues();
         for(int i=0;i<helper.getSystemDocument().size();i++){
             Documentvalues.put("Document_Uri",helper.getSystemDocument().get(i));
+            Documentvalues.put("Document_name",helper.getmDocumentNameList().get(i));
             Log.d("MainActivity", "Documentvalues "+helper.getSystemDocument().get(i) );
             mDb.insert("Document",null,Documentvalues);
             Documentvalues.clear();
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(int i=0;i<helper.getSystemCompression().size();i++){
             Log.d("MainActivity", "DownLoadvalues "+ helper.getSystemCompression().get(i));
             DownLoadvalues.put("DownLoad_Uri",helper.getSystemCompression().get(i));
+            DownLoadvalues.put("DownLoad_name",helper.getmCompressionNameList().get(i));
             mDb.insert("DownLoad",null,DownLoadvalues);
             DownLoadvalues.clear();
         }
@@ -139,6 +141,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(int i=0;i<helper.getSystemApk().size();i++){
             Log.d("MainActivity", "Apkdvalues "+helper.getSystemApk().get(i) );
             Apkdvalues.put("Apk_uri",helper.getSystemApk().get(i));
+            Log.d("Apkdvalues", "Apkdvalues "+helper.getmApkNameList().get(i) );
+            Apkdvalues.put("Apk_name",helper.getmApkNameList().get(i));
             mDb.insert("Apk",null,Apkdvalues);
             Apkdvalues.clear();
         }
@@ -213,10 +217,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 // 遍历Cursor对象，取出数据并打印
                 String uri = cursor.getString(cursor.getColumnIndex
                         ("DownLoad_Uri"));
-                String id = cursor.getString(cursor.getColumnIndex
-                        ("id"));
-                Log.d("MainActivity", "DownLoadid :" + id);
-                Log.d("MainActivity", "DownLoad_uri: " + uri);
+                String name = cursor.getString(cursor.getColumnIndex
+                        ("DownLoad_name"));
+                Log.d("MainActivityniuniu", "DownLoadname :" + name);
+                Log.d("MainActivityniuniu", "DownLoad_uri: " + uri);
             } while (cursor.moveToNext());
         }
         cursor.close();
