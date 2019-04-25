@@ -8,7 +8,7 @@ import android.provider.MediaStore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileRecent {
+public class FileRecent implements RecentInformationCall{
 
     private final static int ONE_DAY = 1;
     private final static int ONE_WEEK = 7;
@@ -41,6 +41,28 @@ public class FileRecent {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<String> getMainDisplayImage(Context context) {
+        List<String> fileList = new ArrayList<>();
+        Cursor cursor = context.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null,
+                null, MediaStore.Images.Media.DATE_MODIFIED +"DESC");
+        while (cursor.moveToNext() && fileList.size() < 5) {
+            String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            fileList.add(filePath);
+        }
+        if(fileList.size() != 4) {
+            fileList = null;
+        }
+        cursor.close();
+        return fileList;
+    }
+
+    @Override
+    public List<String> getRecentOneMonthImage(Context context) {
+        return getRecentSystemImage(context, ONE_MONTH);
     }
 
     public static List<String> getRecentSystemImage(Context context, int recentTime) {
