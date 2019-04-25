@@ -8,14 +8,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.os.StatFs;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.example.app.documentmanager.custom_view.DrawTextImageView;
 import com.example.app.documentmanager.sql.MyDatabaseHelper;
@@ -24,6 +28,9 @@ import com.example.app.documentmanager.utils.FileOpen;
 import com.example.app.documentmanager.utils.FileRecent;
 import com.example.app.documentmanager.utils.RecentInformationCall;
 
+import org.w3c.dom.Text;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +38,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private boolean refreshFlag = true;
+    private TextView storageTextView;
     private ImageView imageView1;
     private ImageView imageView2;
     private ImageView imageView3;
@@ -84,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mContext = getApplicationContext();
         mFileOpen =new FileOpen(mContext);
         init();
+        storageTextView.setText(getSDAvailableSize()+" / "+getSDTotalSize());
         mRecentImageListPath = mRecentInformationCall.getMainDisplayImage(mContext);
         toolbar.inflateMenu(R.menu.menu_main);
         toolbar.setTitle("文件管理器");
@@ -258,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private  void  init(){
+        storageTextView = (TextView)findViewById(R.id.id_storageText);
         mRecentInformationCall = new FileRecent();
         imageView1 =(ImageView)findViewById(R.id.id_recent_image1);
         imageView2 =(ImageView)findViewById(R.id.id_recent_image2);
@@ -347,4 +357,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
     }
+
+    /**
+     * 获得SD卡总大小
+     *
+     * @return
+     */
+    private String getSDTotalSize() {
+        File path = Environment.getExternalStorageDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();
+        long totalBlocks = stat.getBlockCount();
+        return Formatter.formatFileSize(this, blockSize * totalBlocks);
+    }
+
+    /**
+     * 获得sd卡剩余容量，即可用大小
+     *
+     * @return
+     */
+    private String getSDAvailableSize() {
+        File path = Environment.getExternalStorageDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();
+        long availableBlocks = stat.getAvailableBlocks();
+        return Formatter.formatFileSize(this, blockSize * availableBlocks);
+    }
+
+
 }

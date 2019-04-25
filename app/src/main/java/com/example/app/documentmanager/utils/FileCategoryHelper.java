@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import com.example.app.documentmanager.R;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -291,13 +290,11 @@ public class FileCategoryHelper {
 		else if (mimeType.equals("text/plain")) {
 			bitmap= BitmapFactory.decodeResource(context.getResources(),
 					R.drawable.text);
-		} 
-		//�ĵ�
+		}
 		else if (mimeType.startsWith("text")) {
 			bitmap= BitmapFactory.decodeResource(context.getResources(),
 					R.drawable.text);
-		} 
-		//word�ĵ�
+		}
 		else if (mimeType.equals("application/msword")
 				|| mimeType
 						.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
@@ -306,7 +303,6 @@ public class FileCategoryHelper {
 			bitmap= BitmapFactory.decodeResource(context.getResources(),
 					R.drawable.word);
 		}
-		//excel����ļ�
 		else if (mimeType.equals("application/vnd.ms-excel")
 				|| mimeType
 						.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -314,8 +310,7 @@ public class FileCategoryHelper {
 						.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.template")) {
 			bitmap= BitmapFactory.decodeResource(context.getResources(),
 					R.drawable.excel);
-		} 
-		//ppt�ļ�
+		}
 		else if (mimeType.equals("application/vnd.ms-powerpoint")
 				|| mimeType
 						.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")
@@ -325,8 +320,7 @@ public class FileCategoryHelper {
 						.equals("application/vnd.openxmlformats-officedocument.presentationml.slideshow")) {
 			bitmap= BitmapFactory.decodeResource(context.getResources(),
 					R.drawable.powerpoint);
-		} 
-		//pdf�ļ�
+		}
 		else if(mimeType.equals("application/pdf"))
 		{
 			bitmap= BitmapFactory.decodeResource(context.getResources(),
