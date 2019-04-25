@@ -10,6 +10,14 @@ public class FileEntity {
     private String fileSize;
     private Type fileType;
 
+    public FileEntity() {
+    }
+
+    public FileEntity(String filePath, String fileName, Type fileType) {
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.fileType = fileType;
+    }
 
     public String getFilePath() {
         return filePath;
