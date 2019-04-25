@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(menuItemId == R.id.action_serch){
                     Toast.makeText(MainActivity.this , "serch" , Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                    intent.setType("allType");
                     startActivity(intent);
 
                 }else if (menuItemId == R.id.action_settings){

@@ -108,6 +108,7 @@ public class CommonActivity extends AppCompatActivity {
                 if (menuItemId == R.id.action_serch) {
                     Toast.makeText(CommonActivity.this, "serch", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(CommonActivity.this, SearchActivity.class);
+                    intent.setType(mType);
                     startActivity(intent);
 
                 } else if (menuItemId == R.id.action_settings) {
