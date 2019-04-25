@@ -43,6 +43,22 @@ public class FileRecent {
         return false;
     }
 
+    public static List<String> getMainDisplayImage(Context context) {
+        List<String> fileList = new ArrayList<>();
+        Cursor cursor = context.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null,
+                null, MediaStore.Images.Media.DATE_MODIFIED +"DESC");
+        while (cursor.moveToNext() && fileList.size() < 5) {
+            String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            fileList.add(filePath);
+        }
+        if(fileList.size() != 4) {
+            fileList = null;
+        }
+        cursor.close();
+        return fileList;
+    }
+
     public static List<String> getRecentSystemImage(Context context, int recentTime) {
         List<String> fileList = new ArrayList<>();
         Cursor cursor = context.getContentResolver().query(
