@@ -15,6 +15,11 @@ public class FileOpen {
         mContext=context;
     }
 
+    public static FileOpen getInstance(Context context){
+        mContext=context;
+        return new FileOpen(mContext);
+    }
+
     public static Intent openFile(String filePath){
         Log.d("niuniufilePath",filePath);
         File file = new File(filePath);

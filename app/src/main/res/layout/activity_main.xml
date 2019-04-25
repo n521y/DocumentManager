@@ -11,7 +11,12 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"></android.support.v7.widget.Toolbar>
-
+    <LinearLayout
+        android:id="@+id/id_recent_Layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
     <TextView
         android:text="最近打开"
         android:layout_marginLeft="15dp"
@@ -20,35 +25,39 @@
 
     <LinearLayout
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
         android:layout_width="match_parent"
         android:layout_height="100dp">
         <ImageView
+            android:id="@+id/id_recent_image1"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:src="@drawable/ic_apple"
-            android:layout_height="match_parent" />
+            android:layout_height="100dp" />
 
         <ImageView
+            android:id="@+id/id_recent_image2"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:src="@drawable/ic_apple"
-            android:layout_height="match_parent" />
+            android:layout_height="100dp" />
 
         <ImageView
+            android:id="@+id/id_recent_image3"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:src="@drawable/ic_apple"
-            android:layout_height="match_parent" />
+            android:layout_height="100dp" />
 
         <com.example.app.documentmanager.custom_view.DrawTextImageView
             android:id="@+id/more_picture"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:src="@drawable/ic_apple"
-            android:layout_height="match_parent" />
+            android:layout_height="100dp" />
 
     </LinearLayout>
-
+    </LinearLayout>
     <TextView
         android:text="分类"
         android:layout_marginLeft="15dp"

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +20,12 @@ import android.widget.Toast;
 import com.example.app.documentmanager.custom_view.DrawTextImageView;
 import com.example.app.documentmanager.sql.MyDatabaseHelper;
 import com.example.app.documentmanager.utils.FileCategoryHelper;
+import com.example.app.documentmanager.utils.FileOpen;
+import com.example.app.documentmanager.utils.FileRecent;
+import com.example.app.documentmanager.utils.RecentInformationCall;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -29,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView imageView3;
     private DrawTextImageView imageView4;
     private MyDatabaseHelper myDatabaseHelper;
-
+    private LinearLayout recentLayout;
     private SQLiteDatabase mDb;
     private LinearLayout imageLayout;
     private LinearLayout audioLayout;
@@ -39,7 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LinearLayout apkLayout;
     private LinearLayout phonestorage;
     private Toolbar toolbar;
-
+    private List<String> mRecentImageListPath;
+    private RecentInformationCall mRecentInformationCall;
+    private FileOpen mFileOpen;
     class MyAsyncTask extends AsyncTask<Void,Void,Boolean>{
 
 
@@ -73,9 +82,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myDatabaseHelper = new MyDatabaseHelper(this, "Wenjian.db", null, 2);
         mDb=myDatabaseHelper.getWritableDatabase();
         mContext = getApplicationContext();
+        mFileOpen =new FileOpen(mContext);
         init();
+        mRecentImageListPath = mRecentInformationCall.getRecentOneMonthImage(mContext);
         toolbar.inflateMenu(R.menu.menu_main);
         toolbar.setTitle("文件管理器");
+        if(mRecentImageListPath.size() > 0){
+            recentLayout.setVisibility(View.VISIBLE);
+            List<Bitmap> bitmaplist = new ArrayList<>();
+            int size = mRecentImageListPath.size() - 4;
+            Log.d("bitmaplist", " "+size);
+            for(int i =0;i<4;i++){
+                Bitmap bitmap = BitmapFactory.decodeFile(mRecentImageListPath.get(i));
+                bitmaplist.add(bitmap);
+            }
+            imageView1.setImageBitmap(bitmaplist.get(0));
+            imageView2.setImageBitmap(bitmaplist.get(1));
+            imageView3.setImageBitmap(bitmaplist.get(2));
+            imageView4.setImageBitmap(bitmaplist.get(3));
+            imageView4.setDrawText("+"+String.valueOf(size));
+        }else {
+            recentLayout.setVisibility(View.GONE);
+        }
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -229,11 +257,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private  void  init(){
-
+        mRecentInformationCall = new FileRecent();
+        imageView1 =(ImageView)findViewById(R.id.id_recent_image1);
+        imageView2 =(ImageView)findViewById(R.id.id_recent_image2);
+        imageView3 =(ImageView)findViewById(R.id.id_recent_image3);
         imageView4 = (DrawTextImageView)findViewById(R.id.more_picture);
+        mRecentImageListPath = new ArrayList<>();
         imageView4.setDrawLocalXY(80,150);
-        imageView4.setDrawText("+23");
+        imageView1.setOnClickListener(this);
+        imageView2.setOnClickListener(this);
+        imageView3.setOnClickListener(this);
         imageView4.setOnClickListener(this);
+        recentLayout = (LinearLayout)findViewById(R.id.id_recent_Layout);
         imageLayout = (LinearLayout)findViewById(R.id.image);
         audioLayout = (LinearLayout)findViewById(R.id.audio);
         videoLayout = (LinearLayout)findViewById(R.id.video);
@@ -256,39 +291,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         Intent intent =new Intent(MainActivity.this,CommonActivity.class);
         switch (v.getId()){
+            case R.id.id_recent_image1:
+                Intent imagei1Intent =mFileOpen.openFile(mRecentImageListPath.get(0));
+                startActivity(imagei1Intent);
+
+                break;
+            case R.id.id_recent_image2:
+                Intent imagei2Intent =mFileOpen.openFile(mRecentImageListPath.get(1));
+                startActivity(imagei2Intent);
+
+                break;
+            case R.id.id_recent_image3:
+                Intent imagei3Intent =mFileOpen.openFile(mRecentImageListPath.get(2));
+                startActivity(imagei3Intent);
+                break;
             case R.id.more_picture:
-                Toast.makeText(v.getContext(),"more_picture",Toast.LENGTH_LONG).show();
                 Intent recentIntent = new Intent(MainActivity.this,RecentActivity.class);
                 startActivity(recentIntent);
                 break;
 
             case R.id.image:
-                //Toast.makeText(v.getContext(),"image",Toast.LENGTH_LONG).show();
                 intent.setType("image");
                 startActivity(intent);
                 break;
             case R.id.audio:
-                Toast.makeText(v.getContext(),"audio",Toast.LENGTH_LONG).show();
                 intent.setType("audio");
                 startActivity(intent);
                 break;
             case R.id.video:
-                Toast.makeText(v.getContext(),"video",Toast.LENGTH_LONG).show();
                 intent.setType("video");
                 startActivity(intent);
                 break;
             case R.id.document:
-                Toast.makeText(v.getContext(),"document",Toast.LENGTH_LONG).show();
                 intent.setType("document");
                 startActivity(intent);
                 break;
             case R.id.download:
-                Toast.makeText(v.getContext(),"download",Toast.LENGTH_LONG).show();
                 intent.setType("download");
                 startActivity(intent);
                 break;
             case R.id.apk:
-                Toast.makeText(v.getContext(),"apk",Toast.LENGTH_LONG).show();
                 intent.setType("apk");
                 startActivity(intent);
                 break;
